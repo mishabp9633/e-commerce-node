@@ -7,7 +7,7 @@ import {
 const router = express.Router()
 const path = "/user"
 
-router.post(`${path}/user-signUp`,userData)
+router.post(`${path}/user-signup`,userData)
 
 router.get(`${path}/user-all`,getusers)
 

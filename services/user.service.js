@@ -1,5 +1,7 @@
 import userModel from "../models/user.model.js"
 import nodemailer from "nodemailer"
+import { OAuth2Client } from "google-auth-library"
+import crypto from 'crypto'
 
 export async function save (userdata){
 
@@ -37,21 +39,40 @@ export async function Delete (id){
 }
 
 
-export async function forgotPassword(email,token,resetLink){
+export async function forgotPassword(email,CLIENT_ID,CLIENT_SECRETE,accessToken,REFRESH_TOKEN){
     const user = await userModel.findOne({email}) 
-    if (!user){
-        res.status(400).send({message:'user not found'})
-    }
+
+    const token = crypto.randomBytes(20).toString('hex');
+        const resetLink = `http://localhost:3001/user/user-resetPassword/${token}`;
+
+    // if (!user){
+    //     res.status(400).send({message:'user not found'})
+    // }
+    // const transporter = nodemailer.createTransport({
+    //     service: 'Gmail',
+    //     auth: {
+    //         user: 'your_gmail_address@gmail.com',
+    //         pass: 'your_gmail_password'
+    //     }
+    // }); 
+    user.resetPasswordToken = token;
+    user.resetPasswordExpires = Date.now() + 3600000; // 1 hour
+    await user.save();
+    
     const transporter = nodemailer.createTransport({
-        service: 'Gmail',
-        auth: {
-            user: 'your_gmail_address@gmail.com',
-            pass: 'your_gmail_password'
-        }
-    });
+      service: 'gmail',
+      auth: {
+          type: 'OAuth2',
+          user: 'mishabp9633@gmail.com',
+          clientId:CLIENT_ID,
+          clientSecret:CLIENT_SECRETE,
+          refreshToken:REFRESH_TOKEN,
+          accessToken: accessToken
+      }
+  });
 
     const mailOptions = {
-        from: 'your_gmail_address@gmail.com',
+        from: 'mishabp9633@gmail.com',
         to: user.email,
         subject: 'Password Reset',
         html: `<p>Please click <a href="${resetLink}">here</a> to reset your password</p>`
@@ -59,33 +80,30 @@ export async function forgotPassword(email,token,resetLink){
 
     // Generate a unique token and send password reset link via email
 
-    user.resetPasswordToken = token;
-    user.resetPasswordExpires = Date.now() + 3600000; // 1 hour
-    await user.save();
+   
 
     
-    transporter.sendMail(mailOptions, (error, info) => {
+ const result = transporter.sendMail(mailOptions, (error, info) => {
       if (error) {
         console.log(error);
       } else {
         console.log(`Password reset email sent: ${info.response}`);
       }
     });
-    return {user}
+    return {result}
   } 
 
-export async function updatePassword(){
+
+export async function resetPassword(password,confirmPassword,token){
       // Check if the token is valid and has not expired
       const user = await userModel.findOne({
-        resetPasswordToken: req.params.token,
+        resetPasswordToken: token,
         resetPasswordExpires: { $gt: Date.now() }
       });
-      if (!user) {
-        return res.status(404).send({ message: 'Password reset token is invalid or has expired' });
-      }
+      
           // Update the user's password
-    user.password = req.body.password;
-    user.confirmPassword=req.body.confirmPassword
+    user.password = password;
+    user.confirmPassword=confirmPassword
     user.resetPasswordToken = undefined;
     user.resetPasswordExpires = undefined;
     await user.save();
