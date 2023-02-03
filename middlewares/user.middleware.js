@@ -4,8 +4,8 @@ import { isValidMobileNumber ,isValidEmail} from "../utils/util.js";
 
 export function userMiddleware(req, res, next) {
   // check if the "user" collection is present in the request body
-  if (req.body.user) {
-    let { username, password, name, mobileNo, email, role } = req.body.user;
+  if (req.body) {
+    let { username, password, name, mobileNo, email,confirmPassword } = req.body;
 
   if (!username) {
     res.send("Username is required");
@@ -13,6 +13,10 @@ export function userMiddleware(req, res, next) {
   }
   if (!password) {
     res.send("password is required");
+    return
+  }
+  if (!confirmPassword) {
+    res.send("confirmPassword is required");
     return
   }
   if (!name) {
@@ -37,10 +41,7 @@ export function userMiddleware(req, res, next) {
     res.send("your email address not match required format");
     return
   }
-  if (!role) {
-    res.send("role is required");
-    return
-  }
+
   }
   next();
 }

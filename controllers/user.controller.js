@@ -1,32 +1,56 @@
 import {
     getAllData, getSingleData, update, Delete, save, forgotPassword,resetPassword
 } from '../services/user.service.js'
-import nodemailer from 'nodemailer'
-import crypto from 'crypto'
 import {google} from 'googleapis'
-import jwt from 'jsonwebtoken'
 import userModel from "../models/user.model.js"
+import cloudinary from '../utils/cloudinary.utils.js'
 
 
 
 export async function userData(req, res, next) {
     try {
+       
         const userdata = req.body
+        const filestr =req.body.data
+        console.log(filestr);
+       const uploadedResponse = await cloudinary.uploader.upload(
+        filestr,{
+            upload_preset:"user_profiles"
+        })
+        console.log(uploadedResponse);
 
         const result = await save(userdata)
         res.send(result)
     }
     catch (err) {
-        next(err)
+        console.log('err',err.statusCode)
+        if(err.statusCode){
+            res.send(err.statusCode, err)
+        }else{
+            next(err)
+        }
     }
 }
 
 
 export async function getusers(req, res, next) {
     try {
+        const {resources} = await cloudinary.search.expression
+        ('folder:user_profiles')
+        .sort_by('public_id','desc')
+        .max_results(30)
+        .execute()
+
+        const publicIds = resources.map(file=>file.public_id)
+
         const result = await getAllData()
 
-        res.send(result)
+        const results = {
+            result,
+            publicIds
+        }
+
+        res.send(results)
     }
     catch (err) {
         next(err)
@@ -73,10 +97,11 @@ export async function deleteData(req, res, next) {
 export async function forgot(req, res, next) {
     try {
         const email = req.body.email
-        const CLIENT_ID = '261506540726-neof85m9rpj29lag1tm2vr7aujfchjn9.apps.googleusercontent.com'
-        const CLIENT_SECRETE = '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'
-        const REDIRECT_URI = 'https://developers.google.com/oauthplayground'
-        const REFRESH_TOKEN = '1//043UDkLwTMAqUCgYIARAAGAQSNwF-L9Irp-Af7OmXqdOPFYBflf2mjrxEJ0K-Mvm2N0RGfmRJDE81ZcGizszg4tu6enWJwG-WJQg'
+        const CLIENT_ID = process.env.CLIENT_ID
+        const CLIENT_SECRETE = process.env.CLIENT_SECRETE
+        const REDIRECT_URI = process.env.REDIRECT_URI
+        const REFRESH_TOKEN = process.env.REFRESH_TOKEN
+
 
         const user = await userModel.findOne({ email });
         if (!user) {
@@ -86,14 +111,14 @@ export async function forgot(req, res, next) {
         const oAuth2Client = new google.auth.OAuth2(CLIENT_ID,CLIENT_SECRETE,REDIRECT_URI)
         oAuth2Client.setCredentials({refresh_token : REFRESH_TOKEN})
         const accessToken = await oAuth2Client.getAccessToken()
-        
-        // const token = crypto.randomBytes(20).toString('hex');
-        // const resetLink = `http://localhost:3001/user-resetPassword/${token}`;
-
 
         const result = await forgotPassword(email,CLIENT_ID,CLIENT_SECRETE,REDIRECT_URI,REFRESH_TOKEN,accessToken)
-
-        res.status(200).send({result});
+let Token ={
+    resetToken:user.resetPasswordToken,
+    message:'check your mail and create your new password'
+}
+        
+        res.status(200).send({Token})
     } catch (error) {
         // res.status(500).send({ message: 'Error sending password reset email' });
         next(error)
@@ -104,12 +129,13 @@ export async function forgot(req, res, next) {
 export async function reset(req, res, next) {
 
     try {
-        const token = req.params.token
+        const token = req.params.id
+        
 
         const user = await userModel.findOne({
             resetPasswordToken: token,
             resetPasswordExpires: { $gt: Date.now() }
-            })
+            })          
         if (!user) {
             return res.status(404).send({ message: 'Password reset token is invalid or has expired' });
           }
@@ -120,6 +146,7 @@ export async function reset(req, res, next) {
 
             const result = await resetPassword(confirmPassword,password,token)
             res.status(200).send({message:'password updated successfully'})
+            console.log(result);
 
     } catch (err) {
         next({ err })

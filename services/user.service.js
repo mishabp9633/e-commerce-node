@@ -1,10 +1,25 @@
 import userModel from "../models/user.model.js"
 import nodemailer from "nodemailer"
-import { OAuth2Client } from "google-auth-library"
+import bcrypt from "bcrypt"
 import crypto from 'crypto'
+import createError from "http-errors"
+
+
 
 export async function save (userdata){
+       const user = await userModel.findOne({username:userdata.username})
+       if(user){
+        throw createError(400, 'User already registerd')
+       }
+      const password = userdata.password
+      const confirmPassword = userdata.confirmPassword
 
+  const salt = await bcrypt.genSalt(10);
+  const Password = await bcrypt.hash(password,salt)
+  const ConfirmPassword = await bcrypt.hash(confirmPassword,salt)
+
+  userdata.password=Password
+  userdata.confirmPassword=ConfirmPassword
         const result = new userModel(userdata)
        await result.save()
         return {result}
@@ -43,18 +58,13 @@ export async function forgotPassword(email,CLIENT_ID,CLIENT_SECRETE,accessToken,
     const user = await userModel.findOne({email}) 
 
     const token = crypto.randomBytes(20).toString('hex');
-        const resetLink = `http://localhost:3001/user/user-resetPassword/${token}`;
+    const frontendURl = 'http://localhost:3000'
+    const resetLink = `${frontendURl}/user/user-resetpassword/${token}`;
 
     // if (!user){
     //     res.status(400).send({message:'user not found'})
     // }
-    // const transporter = nodemailer.createTransport({
-    //     service: 'Gmail',
-    //     auth: {
-    //         user: 'your_gmail_address@gmail.com',
-    //         pass: 'your_gmail_password'
-    //     }
-    // }); 
+ 
     user.resetPasswordToken = token;
     user.resetPasswordExpires = Date.now() + 3600000; // 1 hour
     await user.save();
@@ -96,14 +106,20 @@ export async function forgotPassword(email,CLIENT_ID,CLIENT_SECRETE,accessToken,
 
 export async function resetPassword(password,confirmPassword,token){
       // Check if the token is valid and has not expired
+
+
       const user = await userModel.findOne({
         resetPasswordToken: token,
         resetPasswordExpires: { $gt: Date.now() }
       });
-      
-          // Update the user's password
-    user.password = password;
-    user.confirmPassword=confirmPassword
+
+      const salt = await bcrypt.genSalt(10);
+      const Password = await bcrypt.hash(password,salt)
+      const ConfirmPassword = await bcrypt.hash(confirmPassword,salt)
+
+          // Update the user's password    
+    user.password = Password;
+    user.confirmPassword=ConfirmPassword
     user.resetPasswordToken = undefined;
     user.resetPasswordExpires = undefined;
     await user.save();

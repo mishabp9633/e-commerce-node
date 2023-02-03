@@ -5,6 +5,8 @@ import dotenv from "dotenv"
 import { initialize } from './database/connection.js';
 
 import userRouter from './routes/user.route.js'
+import authRouter from './routes/auth.route.js'
+
 
 import {errorHandling} from './middlewares/error.middleware.js'
 
@@ -13,14 +15,13 @@ import {errorHandling} from './middlewares/error.middleware.js'
   dotenv.config()
   const app = express()
 
-  app.use(cors({ origin: true, credentials: true }));
+  app.use(cors('*'));
 
   app.use(express.json({limit:"50mb"}))
   app.use(express.urlencoded({limit:"50mb",extended:true}))
 
-
-
   app.use(userRouter)
+  app.use(authRouter)
 
 
 
