@@ -2,7 +2,7 @@ import  mongoose  from 'mongoose';
 mongoose.set('strictQuery', false);
 
 const connection_string =
-  "mongodb://localhost:27017/login-project";
+  "mongodb://localhost:27017/Olx-clone";
 
 
   // export let db;

@@ -2,13 +2,13 @@ import  express from 'express'
 import {
     getuser,getusers,updateData,deleteData,userData, forgot,reset
 } from '../controllers/user.controller.js'
-import { userMiddleware } from '../middlewares/user.middleware.js'
+// import { userMiddleware } from '../middlewares/user.middleware.js'
 
 
 const router = express.Router()
 const path = "/user"
 
-router.post(`${path}/user-signup`,userData,userMiddleware)
+router.post(`${path}/user-signup`,userData)
 
 router.get(`${path}/user-all`,getusers)
 

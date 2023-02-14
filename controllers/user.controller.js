@@ -11,8 +11,9 @@ export async function userData(req, res, next) {
     try {
        
         const userdata = req.body
+        
         const filestr =req.body.data
-        console.log(filestr);
+      
        const uploadedResponse = await cloudinary.uploader.upload(
         filestr,{
             upload_preset:"user_profiles"
@@ -124,6 +125,7 @@ let Token ={
         next(error)
     }
 }
+
 
 
 export async function reset(req, res, next) {

@@ -1,7 +1,4 @@
-import userModel from "../models/user.model.js";
 import { login } from "../services/auth.service.js";
-
-
 
 
 //login 

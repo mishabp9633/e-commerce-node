@@ -62,7 +62,12 @@ export const userSchema = new mongoose.Schema({
       },
      profilePhoto: {
         type:String
+      },
+      role: {
+        type:String,
+        default:"seller"
       }
+
 
       
   

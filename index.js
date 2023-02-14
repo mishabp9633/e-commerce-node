@@ -6,6 +6,8 @@ import { initialize } from './database/connection.js';
 
 import userRouter from './routes/user.route.js'
 import authRouter from './routes/auth.route.js'
+import categoryRouter from './routes/category.route.js'
+import subcategoryRouter from './routes/subcategory.route.js'
 
 
 import {errorHandling} from './middlewares/error.middleware.js'
@@ -20,8 +22,13 @@ import {errorHandling} from './middlewares/error.middleware.js'
   app.use(express.json({limit:"50mb"}))
   app.use(express.urlencoded({limit:"50mb",extended:true}))
 
-  app.use(userRouter)
-  app.use(authRouter)
+  app.use(
+    userRouter,
+    authRouter,
+    categoryRouter,
+    subcategoryRouter
+    )
+ 
 
 
 
