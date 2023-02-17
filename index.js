@@ -11,7 +11,7 @@ import subcategoryRouter from './routes/subcategory.route.js'
 import motorcycleRouter from './routes/motorcycle.route.js'
 import bicycleRouter from './routes/bicycle.route.js'
 import productRouter from './routes/product.route.js'
-
+// import swaggerRouter from './swagger.js';
 
 import {errorHandling} from './middlewares/error.middleware.js'
 
@@ -33,10 +33,7 @@ import {errorHandling} from './middlewares/error.middleware.js'
     bicycleRouter,
     productRouter
     )
- 
-
-
-
+  // app.use('/swagger', swaggerRouter); 
   app.use(errorHandling)
 
   const port = process.env.PORT || 5000 ;
@@ -44,52 +41,3 @@ import {errorHandling} from './middlewares/error.middleware.js'
    console.log(`server listening at http://localhost:${port}`);
   })
  
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-// import express from "express";
-// import bodyParser from "body-parser";
-// import cors from "cors";
-// // import url from "url"
-// import {router as calculationRoute} from "./calculation.js";
-// // import router from "./calculation.js";
-// import { initialize } from "./database/connection.js";
-
-// //  var routes = express.Router()
-// // var defaulteRoutes = require('./calculation');
-
-// var app = express();
-// var jsonParsor = bodyParser.json();
-// app.use(cors({ origin: true, credentials: true }));
-
-// //-----------------------db connection-------------------//
-// await initialize()
-
-// // calculationRoute(app, db)
-
-// app.use('/calculation', calculationRoute)
-
-// app.get("/", function (req, res) {
-//   res.send("<h2>welcome guyss</h2>");
-// });
-
-// app.listen(8080, function () {
-//   console.log("server started");
-// });

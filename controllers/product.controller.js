@@ -1,6 +1,6 @@
-import { deleteProductByToken,
-     getAll, getProductByToken,
-      save, updateProductByToken 
+import {  deleteProductByToken,
+     getAll, getPhotoById, getProductByToken,
+      save, updatePhotoByToken, updateProductByToken 
     } from "../services/product.service.js"
     
 import cloudinary from '../utils/cloudinary.utils.js'
@@ -12,12 +12,11 @@ export async function saveProduct(req, res, next) {
       const productData = req.body
       console.log("productData",productData)
   
-      // Create an array to store the uploaded photo URLs and public IDs
       const photos = []
   
-      // Loop over the uploaded files and upload each one to Cloudinary
       for (const file of req.files) {
-        const result = await cloudinary.uploader.upload(file.path)
+        const publicId = `product/${file.filename}`;
+        const result = await cloudinary.uploader.upload(file.path ,{ public_id: publicId })
         photos.push({
           publicId: result.public_id,
           url: result.secure_url
@@ -56,6 +55,8 @@ export async function getAllProduct(req,res,next){
     }    
 }
 
+
+
 export async function getAllProductUserByToken(req,res,next){
     try{
         const userId = req.body.user._id
@@ -72,6 +73,14 @@ export async function getAllProductUserByToken(req,res,next){
 export async function deleteProduct(req,res,next){
     try{
         const productId = req.params.id
+        const {photos} = await getPhotoById(productId);
+        console.log('photos:', photos);
+  
+        // Delete photos in cloudinary
+        for (const photo of photos) {
+          console.log(photo);
+          await cloudinary.uploader.destroy(photo.publicId);
+        }
         const result = await Delete(productId)
         console.log('result',result)
         res.status(200).send(result)
@@ -80,7 +89,6 @@ export async function deleteProduct(req,res,next){
         next(err)
     }    
 }
-
 
 
 export async function updateProductDataByToken(req,res,next){
@@ -99,10 +107,59 @@ export async function updateProductDataByToken(req,res,next){
 }
 
 
+
+export async function updateProductPhotoByToken(req, res, next) {
+    try {
+      const userId = req.body.user._id;
+      const productId = req.params.id;
+      const productData = req.body
+
+      const {photos} = await getPhotoById(productId);
+      console.log('photos:', photos);
+
+      // Delete photos in cloudinary
+      for (const photo of photos) {
+        console.log(photo);
+        await cloudinary.uploader.destroy(photo.publicId);
+      }
+  
+      // Upload new photos and update 
+      const newPhotos = [];
+      for (const file of req.files) {
+        const publicId = `product/${file.filename}`;
+        const result = await cloudinary.uploader.upload(file.path,{ public_id: publicId });
+        newPhotos.push({
+          publicId: result.public_id,
+          url: result.secure_url
+        });
+      }
+      productData.photos = productData.photos ? [...productData.photos, ...newPhotos] : newPhotos;
+  
+      // Update the product in the database
+      const result = await updatePhotoByToken(userId, productData, productId);
+      console.log('result', result);
+      res.status(200).send(result);
+    } catch (err) {
+      console.log(err);
+      next(err);
+    }
+  }
+  
+
+
+
 export async function deleteProductDataByToken(req,res,next){
     try{
         const userId = req.body.user._id
         const productId = req.params.id
+        const {photos} = await getPhotoById(productId);
+        console.log('photos:', photos);
+  
+        // Delete photos in cloudinary
+        for (const photo of photos) {
+          console.log(photo);
+          await cloudinary.uploader.destroy(photo.publicId);
+        }
         const result = await deleteProductByToken(userId,productId)
         console.log('result',result)
         res.status(200).send(result)
