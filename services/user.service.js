@@ -3,6 +3,7 @@ import nodemailer from "nodemailer"
 import bcrypt from "bcrypt"
 import crypto from 'crypto'
 import createError from "http-errors"
+import {HttpException} from '../exceptions/exceptions.js';
 
 
 
@@ -32,6 +33,18 @@ export async function getAllData (){
     return {result}
 }
 
+export async function getDataUserByToken (){
+  const result =await userModel.find({_id:id})
+  if(!result)throw new HttpException (404,"User not found by the given Token")
+  return {result}
+}
+
+export async function getDataAdminByToken (id){
+  const result =await userModel.find({_id:id})
+  if(!result)throw new HttpException (404,"Admin not found by the given Token")
+  return {result}
+}
+
 
 export async function getSingleData(id){
     const result = await userModel.findById(id)
@@ -39,7 +52,7 @@ export async function getSingleData(id){
 }
 
 
-export async function update(req,res){
+export async function update(userId,userdata){
     const result = await userModel.findByIdAndUpdate(userId,userdata,
     
     {
@@ -47,6 +60,7 @@ export async function update(req,res){
     })
 return {result}
 }
+
 
 export async function Delete (id){
     const result = await userModel.findByIdAndDelete(id)

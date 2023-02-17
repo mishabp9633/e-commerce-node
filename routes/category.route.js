@@ -14,7 +14,7 @@ const router = express.Router()
 const path = "/category"
 
 //..........admin............//
-router.post(`${path}/new`,categoryValidator,adminMiddleware,saveCategory)
+router.post(`${path}/new`,adminMiddleware,categoryValidator,saveCategory)
 router.put(`${path}/update/:id`,adminMiddleware,updateCategory)
 router.delete(`${path}/delete/:id`,adminMiddleware,deleteCategory)
 

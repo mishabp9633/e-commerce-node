@@ -1,26 +1,34 @@
 import  express from 'express'
 import {
-    getuser,getusers,updateData,deleteData,userData, forgot,reset
+    getuser,getusers,updateData,
+    deleteData,userData, forgot,reset,
+    getUserByToken,updateUserByToken,
+    getAdminByToken,deleteUserByToken
 } from '../controllers/user.controller.js'
-// import { userMiddleware } from '../middlewares/user.middleware.js'
+
+import { adminMiddleware, sellerMiddleware } from '../middlewares/auth.middleware.js'
+import { userMiddleware } from '../middlewares/user.middleware.js'
 
 
 const router = express.Router()
 const path = "/user"
 
-router.post(`${path}/user-signup`,userData)
+//..............seller..............//
+router.post(`${path}/signup`,userMiddleware,userData)
+router.post(`${path}/forgotpassword`,sellerMiddleware,forgot)
+router.post(`${path}/resetpassword/:id`,sellerMiddleware,reset)
+router.post(`${path}/get`,sellerMiddleware,getUserByToken)
+router.post(`${path}/update`,sellerMiddleware,updateUserByToken)
+router.post(`${path}/delete`,sellerMiddleware,deleteUserByToken)
 
-router.get(`${path}/user-all`,getusers)
 
-router.get(`${path}/user-single/:id`,getuser)
+//............admin...............//
+router.get(`${path}/user-all`,adminMiddleware,getusers)
+router.get(`${path}/user-single/:id`,adminMiddleware,getuser)
+router.put(`${path}/user-update/:id`,adminMiddleware,updateData)
+router.delete(`${path}/user-delete/:id`,adminMiddleware,deleteData)
+router.post(`${path}/get`,adminMiddleware,getAdminByToken)
 
-router.put(`${path}/user-update/:id`,updateData)
-
-router.delete(`${path}/user-delete/:id`,deleteData)
-
-router.post(`${path}/user-forgotpassword`,forgot)
-
-router.post(`${path}/user-resetpassword/:id`,reset)
 
 export default router
 

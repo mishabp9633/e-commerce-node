@@ -8,10 +8,11 @@ export async function signIn(req, res, next) {
   
     try {
       const response = await login(loginData)
-        res.send(response);
+      res.status(200).send(response);
       }
-    catch (error) {
-      next({error});
+    catch (err) {
+      console.log(err);
+      next(err);
     } 
 } 
 
@@ -22,6 +23,7 @@ export async function logoutUser(req, res, next) {
       res.status(200).send({ message: 'Successfully logged out' });
   
   } catch (err) {
+    console.log(err);
     next(err);
   }
 }

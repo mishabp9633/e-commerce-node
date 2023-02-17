@@ -5,7 +5,7 @@ export async function saveSubcategory(req,res,next){
         const subcategoryData = req.body
         const result = await save(subcategoryData)
         console.log('result',result)
-        res.status(200).send({message:"successfully added category"})
+        res.status(200).send({message:"successfully added subcategory"})
     }catch(err){
         console.log(err);
         next(err)

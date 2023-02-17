@@ -1,4 +1,5 @@
 import categoryModel from '../models/category.model.js'
+import {HttpException} from '../exceptions/exceptions.js';
 
 export async function save(data){
    const category = await categoryModel.create({...data})
@@ -12,7 +13,7 @@ export async function getAll(){
 
  export async function update(id,data){
     const category = await categoryModel.findByIdAndUpdate(id,data,{new:true})
-    if (!category) throw new HttpException(404, "category not found")
+    if (!category) throw new HttpException(404, " category not found")
     return{category}
  }
 
@@ -21,3 +22,5 @@ export async function getAll(){
     if (!category) throw new HttpException(404, "category not found")
     return{category}
  }
+
+

@@ -1,4 +1,4 @@
-import HttpException from 'http-exception'
+import {HttpException} from '../exceptions/exceptions.js';
 import subcategoryModel from '../models/subcategory.model.js'
 
 export async function save(data){
@@ -23,3 +23,11 @@ export async function getAll(){
     if(!subcategory) throw new HttpException(404, "subcategory not found")
     return{subcategory}
  }
+
+ //....(motorcycle controller)....//
+ export async function findCategoryId(id){
+   const subcategory = await subcategoryModel.findById(id)
+   if(!subcategory) throw new HttpException(404, "subcategory not found")
+   const categoryId = subcategory.categoryId
+   return{categoryId}
+}

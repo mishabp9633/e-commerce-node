@@ -4,17 +4,15 @@ mongoose.set('strictQuery', false);
 const connection_string =
   "mongodb://localhost:27017/Olx-clone";
 
-
-  // export let db;
-
   export async function initialize(){
     try{
          await mongoose.connect(connection_string)
-            // db = client.db("classday");
+            
             console.log("db connected");
         }catch(err){
+          console.log(err);
            throw err;
-          // console.log(err);
+          
     }
 }
 

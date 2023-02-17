@@ -1,33 +1,27 @@
 import {
-    getAllData, getSingleData, update, Delete, save, forgotPassword,resetPassword
+    getAllData, getSingleData, update, Delete, 
+    save, forgotPassword, resetPassword, 
+    getDataUserByToken, getDataAdminByToken,
 } from '../services/user.service.js'
-import {google} from 'googleapis'
+
+import { google } from 'googleapis'
 import userModel from "../models/user.model.js"
-import cloudinary from '../utils/cloudinary.utils.js'
 
 
 
 export async function userData(req, res, next) {
     try {
-       
+
         const userdata = req.body
-        
-        const filestr =req.body.data
-      
-       const uploadedResponse = await cloudinary.uploader.upload(
-        filestr,{
-            upload_preset:"user_profiles"
-        })
-        console.log(uploadedResponse);
 
         const result = await save(userdata)
         res.send(result)
     }
     catch (err) {
-        console.log('err',err.statusCode)
-        if(err.statusCode){
+        console.log('err', err.statusCode)
+        if (err.statusCode) {
             res.send(err.statusCode, err)
-        }else{
+        } else {
             next(err)
         }
     }
@@ -36,22 +30,34 @@ export async function userData(req, res, next) {
 
 export async function getusers(req, res, next) {
     try {
-        const {resources} = await cloudinary.search.expression
-        ('folder:user_profiles')
-        .sort_by('public_id','desc')
-        .max_results(30)
-        .execute()
-
-        const publicIds = resources.map(file=>file.public_id)
 
         const result = await getAllData()
+        res.send(result)
+    }
+    catch (err) {
+        next(err)
+    }
+}
 
-        const results = {
-            result,
-            publicIds
-        }
 
-        res.send(results)
+export async function getUserByToken(req, res, next) {
+    try {
+        const userId = req.body.user._id
+        const result = await getDataUserByToken(userId)
+
+        res.send(result)
+    }
+    catch (err) {
+        next(err)
+    }
+}
+
+export async function getAdminByToken(req, res, next) {
+    try {
+        const userId = req.body.user._id
+        const result = await getDataAdminByToken(userId)
+
+        res.send(result)
     }
     catch (err) {
         next(err)
@@ -80,7 +86,30 @@ export async function updateData(req, res, next) {
     } catch (err) {
         next(err)
     }
+}
 
+
+export async function updateUserByToken(req, res, next) {
+    try {
+        const userId = req.body.user._id
+        const userdata = req.body
+
+        const result = await update(userId, userdata)
+        res.send(result)
+    } catch (err) {
+        next(err)
+    }
+}
+
+
+export async function deleteUserByToken(req, res, next) {
+    try {
+        const userId = req.body.user._id
+        const result = await Delete(userId)
+        res.send(result)
+    } catch (err) {
+        next(err)
+    }
 }
 
 
@@ -106,22 +135,21 @@ export async function forgot(req, res, next) {
 
         const user = await userModel.findOne({ email });
         if (!user) {
-           return  res.status(400).send({ message: 'User not found' });
+            return res.status(400).send({ message: 'User not found' });
         }
 
-        const oAuth2Client = new google.auth.OAuth2(CLIENT_ID,CLIENT_SECRETE,REDIRECT_URI)
-        oAuth2Client.setCredentials({refresh_token : REFRESH_TOKEN})
+        const oAuth2Client = new google.auth.OAuth2(CLIENT_ID, CLIENT_SECRETE, REDIRECT_URI)
+        oAuth2Client.setCredentials({ refresh_token: REFRESH_TOKEN })
         const accessToken = await oAuth2Client.getAccessToken()
 
-        const result = await forgotPassword(email,CLIENT_ID,CLIENT_SECRETE,REDIRECT_URI,REFRESH_TOKEN,accessToken)
-let Token ={
-    resetToken:user.resetPasswordToken,
-    message:'check your mail and create your new password'
-}
-        
-        res.status(200).send({Token})
+        const result = await forgotPassword(email, CLIENT_ID, CLIENT_SECRETE, REDIRECT_URI, REFRESH_TOKEN, accessToken)
+        let Token = {
+            resetToken: user.resetPasswordToken,
+            message: 'check your mail and create your new password'
+        }
+
+        res.status(200).send({ Token })
     } catch (error) {
-        // res.status(500).send({ message: 'Error sending password reset email' });
         next(error)
     }
 }
@@ -132,23 +160,23 @@ export async function reset(req, res, next) {
 
     try {
         const token = req.params.id
-        
+
 
         const user = await userModel.findOne({
             resetPasswordToken: token,
             resetPasswordExpires: { $gt: Date.now() }
-            })          
+        })
         if (!user) {
             return res.status(404).send({ message: 'Password reset token is invalid or has expired' });
-          }
+        }
 
-      
-       const confirmPassword = req.body.confirmPassword
-       const password = req.body.password
 
-            const result = await resetPassword(confirmPassword,password,token)
-            res.status(200).send({message:'password updated successfully'})
-            console.log(result);
+        const confirmPassword = req.body.confirmPassword
+        const password = req.body.password
+
+        const result = await resetPassword(confirmPassword, password, token)
+        res.status(200).send({ message: 'password updated successfully' })
+        console.log(result);
 
     } catch (err) {
         next({ err })
