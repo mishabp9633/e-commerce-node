@@ -19,6 +19,7 @@
     "express": "^4.18.2",
     "formidable": "^2.1.1",
     "geo-coordinates": "^0.2.0",
+    "google-auth-library": "^8.7.0",
     "googleapis": "^110.0.0",
     "http-errors": "^2.0.0",
     "http-exception": "^0.0.2",

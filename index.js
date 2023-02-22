@@ -29,8 +29,8 @@ import {errorHandling} from './middlewares/error.middleware.js'
     authRouter,
     categoryRouter,
     subcategoryRouter,
-    motorcycleRouter,
-    bicycleRouter,
+    // motorcycleRouter,
+    // bicycleRouter,
     productRouter
     )
   // app.use('/swagger', swaggerRouter); 

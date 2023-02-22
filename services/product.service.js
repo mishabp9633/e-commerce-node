@@ -29,6 +29,20 @@ export async function getAll(){
     return{product}
  }
 
+
+ export async function getSingle(id){
+   const product = await productModel.findById(id)
+   .populate("userId",["name","email","mobileNo"])
+   .populate("categoryId","categoryName")
+   .populate("subcategoryId","subcategoryName")
+   if(!product) throw new HttpException(404, "product not found")
+   console.log(product)
+   return{product}
+}
+
+
+
+
  export async function Delete(id){
     const product = await productModel.findByIdAndDelete(id)
     if(!product) throw new HttpException(404, "product not found")

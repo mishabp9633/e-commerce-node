@@ -1,5 +1,6 @@
 import {  deleteProductByToken,
      getAll, getPhotoById, getProductByToken,
+      getSingle,
       save, updatePhotoByToken, updateProductByToken 
     } from "../services/product.service.js"
     
@@ -53,6 +54,18 @@ export async function getAllProduct(req,res,next){
         console.log(err);
         next(err)
     }    
+}
+
+
+export async function getSingleProduct(req,res,next){
+  try{
+      const result = await getSingle()
+      console.log('result',result)
+      res.status(200).send(result)
+  }catch(err){
+      console.log(err);
+      next(err)
+  }    
 }
 
 

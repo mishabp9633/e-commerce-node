@@ -73,7 +73,7 @@ export async function forgotPassword(email,CLIENT_ID,CLIENT_SECRETE,accessToken,
 
     const token = crypto.randomBytes(20).toString('hex');
     const frontendURl = 'http://localhost:3000'
-    const resetLink = `${frontendURl}/user/user-resetpassword/${token}`;
+    const resetLink = `${frontendURl}/resetpassword/${token}`;
 
     // if (!user){
     //     res.status(400).send({message:'user not found'})
