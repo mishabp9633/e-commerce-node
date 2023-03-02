@@ -1,6 +1,6 @@
-import mongoose from "mongoose";
+import mongoose,{Schema,model} from "mongoose";
 
-const googleUserSchema = new mongoose.Schema({
+const googleUserSchema = new Schema({
   name: {
     type: String,
   },
@@ -17,5 +17,5 @@ const googleUserSchema = new mongoose.Schema({
   }
 })
 
-const googleUser = mongoose.model("Googleuser", googleUserSchema);
+const googleUser = model("Googleuser", googleUserSchema);
 export default googleUser;

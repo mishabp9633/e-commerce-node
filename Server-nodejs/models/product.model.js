@@ -1,4 +1,6 @@
-const productDetailsSchema = new mongoose.Schema({
+import mongoose,{Schema,model} from "mongoose";
+
+const productDetailsSchema = new Schema({
     brand: {
       type: String,
     },
@@ -20,10 +22,7 @@ const productDetailsSchema = new mongoose.Schema({
   });
 
 
-
-import mongoose from "mongoose";
-
-const productSchema = new mongoose.Schema({
+const productSchema = new Schema({
     userId: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "User",
@@ -89,7 +88,7 @@ const productSchema = new mongoose.Schema({
 
 productSchema.index({ location: "2dsphere" });
 
-const Product = mongoose.model("Product", productSchema);
+const Product = model("Product", productSchema);
 
 export default Product;
 

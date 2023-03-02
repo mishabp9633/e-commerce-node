@@ -1,13 +1,14 @@
-import mongoose from "mongoose";
+import mongoose,{Schema,model} from "mongoose";
 
-export const categorySchema = new mongoose.Schema({
+
+export const categorySchema = new Schema({
   categoryName: {
-    type: mongoose.Schema.Types.String,
+    type: String,
     required: true,
     enum:["Bike","Car","Other"]
     
   } 
 },{timestamps:true})
 
-const  category= mongoose.model("Category", categorySchema)
+const  category= model("Category", categorySchema)
 export default category

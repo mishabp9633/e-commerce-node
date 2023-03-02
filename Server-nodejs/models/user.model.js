@@ -1,10 +1,11 @@
-// import { MongoTopologyClosedError } from "mongodb";
-import mongoose from "mongoose";
+import mongoose,{Schema,model} from "mongoose";
+import { ROLES } from "../constants/role.constants.js"
+
 import { isValidEmail, isValidMobileNumber } from '../utils/util.js'
 
 
 
-export const userSchema = new mongoose.Schema({
+export const userSchema = new Schema({
   username: {
     type: mongoose.Schema.Types.String,
     required: true,
@@ -28,11 +29,11 @@ export const userSchema = new mongoose.Schema({
     }
   },
   name: {
-    type: mongoose.Schema.Types.String,
+    type: String,
     required: true,
   },
   mobileNo: {
-    type: mongoose.Schema.Types.String,
+    type: String,
     required: true,
     validate: {
       validator: (v)=> isValidMobileNumber(v),
@@ -40,7 +41,7 @@ export const userSchema = new mongoose.Schema({
   }
   },
   email: {
-    type: mongoose.Schema.Types.String,
+    type: String,
     unique: true,
     required: true,
     validate: {
@@ -65,7 +66,8 @@ export const userSchema = new mongoose.Schema({
       },
       role: {
         type:String,
-        default:"seller"
+        default:ROLES.seller,
+        enum:[ROLES.admin,ROLES.seller]
       }
 
 
@@ -73,5 +75,5 @@ export const userSchema = new mongoose.Schema({
   
 });
 
-const user = mongoose.model("User", userSchema);
+const user = model("User", userSchema);
 export default user;
